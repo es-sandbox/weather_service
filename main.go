@@ -13,6 +13,7 @@ import (
 	"flag"
 	"github.com/boltdb/bolt"
 	"log"
+	"time"
 )
 
 var (
@@ -28,6 +29,7 @@ var db *bolt.DB
 // TODO(evg): review it
 type weatherInfo struct {
 	ID            uint64
+	TimeStamp     int64 // Unix TimeStamp
 	Temp          int
 	Humidity      int
 	Pressure      int
@@ -121,6 +123,8 @@ func dataHandler(resp http.ResponseWriter, req *http.Request) {
 
 			id, _ := b.NextSequence()
 			weatherInfo.ID = id
+
+			weatherInfo.TimeStamp = time.Now().UnixNano()
 
 			data, err := weatherInfo.Serialize()
 			if err != nil {
