@@ -12,6 +12,7 @@ import (
 	"bytes"
 	"errors"
 	"flag"
+	"encoding/binary"
 )
 
 var (
@@ -25,6 +26,7 @@ var (
 var db *bolt.DB
 
 type weatherInfo struct {
+	ID uint64
 	Temp int
 }
 
@@ -49,7 +51,8 @@ func (w *weatherInfo) Deserialize(data []byte) error {
 func dataHandler(resp http.ResponseWriter, req *http.Request) {
 	switch req.Method {
 	case "GET":
-		var jsonText []byte
+		// var jsonText []byte
+		dataSlice := make([][]byte, 0)
 
 		err := db.View(func(tx *bolt.Tx) error {
 			b := tx.Bucket(bucketName)
@@ -57,31 +60,39 @@ func dataHandler(resp http.ResponseWriter, req *http.Request) {
 				return bucketDoesNotExistError
 			}
 
-			data := b.Get(keyName)
-			if data == nil {
-				return keyDoesNotExist
-			}
-
-			weatherInfo := weatherInfo{}
-			if err := weatherInfo.Deserialize(data); err != nil {
-				return err
-			}
-
-			jsonTextLocal, err := json.Marshal(weatherInfo)
-			if err != nil {
-				return err
-			}
-
-			jsonText = make([]byte, len(jsonTextLocal))
-			copy(jsonText, jsonTextLocal)
-			return nil
+			return b.ForEach(func(key, value []byte) error {
+				data := make([]byte, len(value))
+				copy(data, value)
+				dataSlice = append(dataSlice, data)
+				return nil
+			})
 		})
 		if err != nil {
 			fmt.Printf("db's view error: %v\n", err)
 			return
 		}
 
-		resp.Write(jsonText)
+		weatherInfoSlice := make([]*weatherInfo, len(dataSlice))
+
+		for i, data := range dataSlice {
+			weatherInfo := &weatherInfo{}
+			if err := weatherInfo.Deserialize(data); err != nil {
+				fmt.Println(err)
+				return
+			}
+
+			weatherInfoSlice[i] = weatherInfo
+		}
+
+		jsonText, err := json.Marshal(weatherInfoSlice)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+
+		if _, err := resp.Write(jsonText); err != nil {
+			fmt.Println(err)
+		}
 
 	case "POST":
 		data, err := ioutil.ReadAll(req.Body)
@@ -102,18 +113,28 @@ func dataHandler(resp http.ResponseWriter, req *http.Request) {
 				return err
 			}
 
+			id, _ := b.NextSequence()
+			weatherInfo.ID = id
+
 			data, err := weatherInfo.Serialize()
 			if err != nil {
 				return err
 			}
 
-			return b.Put(keyName, data)
+			return b.Put(itob(id), data)
 		})
 		if err != nil {
 			fmt.Printf("can't write data: %v\n", err)
 			return
 		}
 	}
+}
+
+// itob returns an 8-byte big endian representation of v.
+func itob(v uint64) []byte {
+	b := make([]byte, 8)
+	binary.BigEndian.PutUint64(b, uint64(v))
+	return b
 }
 
 func main() {
