@@ -1,0 +1,5 @@
+*.idea
+*.db
+public/plotly-latest.min.js
+vendor
+weather_service
