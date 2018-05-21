@@ -1,35 +1,42 @@
 package main
 
 import (
-	"net/http"
-	"io/ioutil"
-	"fmt"
 	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"net/http"
 
-	"github.com/boltdb/bolt"
-	"log"
-	"encoding/gob"
 	"bytes"
+	"encoding/binary"
+	"encoding/gob"
 	"errors"
 	"flag"
-	"encoding/binary"
+	"github.com/boltdb/bolt"
+	"log"
 )
 
 var (
 	bucketDoesNotExistError = errors.New("bucket does not exist")
-	keyDoesNotExist = errors.New("key does not exist")
+	keyDoesNotExist         = errors.New("key does not exist")
 
 	bucketName = []byte("bucket")
-	keyName = []byte("key")
+	keyName    = []byte("key")
 )
 
 var db *bolt.DB
 
+// TODO(evg): review it
 type weatherInfo struct {
-	ID uint64
-	Temp int
+	ID            uint64
+	Temp          int
+	Humidity      int
+	Pressure      int
+	WindSpeed     int
+	WindDirection string
+	Rainfall      int
 }
 
+// TODO(evg): remove it?
 func (w *weatherInfo) String() string {
 	return fmt.Sprintf("Temp: %v", w.Temp)
 }
@@ -46,7 +53,6 @@ func (w *weatherInfo) Deserialize(data []byte) error {
 	buf := bytes.NewBuffer(data)
 	return gob.NewDecoder(buf).Decode(w)
 }
-
 
 func dataHandler(resp http.ResponseWriter, req *http.Request) {
 	switch req.Method {
@@ -148,7 +154,6 @@ func main() {
 		log.Fatal(err)
 	}
 	defer db.Close()
-
 
 	http.HandleFunc("/data", dataHandler)
 	http.ListenAndServe(*listenAddr, nil)
