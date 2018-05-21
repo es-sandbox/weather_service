@@ -98,6 +98,9 @@ func dataHandler(resp http.ResponseWriter, req *http.Request) {
 			return
 		}
 
+		resp.Header().Set("Access-Control-Allow-Origin", "*")
+
+
 		if _, err := resp.Write(jsonText); err != nil {
 			fmt.Println(err)
 		}
