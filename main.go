@@ -30,12 +30,12 @@ var db *bolt.DB
 type weatherInfo struct {
 	ID            uint64
 	TimeStamp     int64 // Unix TimeStamp
-	Temp          int
-	Humidity      int
-	Pressure      int
-	WindSpeed     int
+	Temp          float64
+	Humidity      float64
+	Pressure      float64
+	WindSpeed     float64
 	WindDirection string
-	Rainfall      int
+	Rainfall      float64
 }
 
 // TODO(evg): remove it?
