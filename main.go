@@ -201,7 +201,7 @@ func dataLastHandler(resp http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func getLastHourRecords() []*weatherInfo {
+func getLastHourRecords(timespan time.Duration) []*weatherInfo {
 	// var jsonText []byte
 	dataSlice := make([][]byte, 0)
 
@@ -232,7 +232,7 @@ func getLastHourRecords() []*weatherInfo {
 			return nil
 		}
 
-		if time.Now().Sub(weatherInfo.GetTime()) > time.Hour {
+		if time.Now().Sub(weatherInfo.GetTime()) > timespan {
 			continue
 		}
 
@@ -241,39 +241,45 @@ func getLastHourRecords() []*weatherInfo {
 	return weatherInfoSlice
 }
 
+func getAvgForWeatherInfoSlice(weatherInfoSlice []*weatherInfo) *weatherInfo {
+	weatherInfoAvg := weatherInfo{}
+
+	null := 0
+
+	for _, weatherInfo := range weatherInfoSlice {
+		if weatherInfo == nil {
+			null++
+			continue
+		}
+
+		weatherInfoAvg.TempOUT += weatherInfo.TempOUT
+		weatherInfoAvg.Humidity += weatherInfo.Humidity
+		weatherInfoAvg.TempIN += weatherInfo.TempIN
+		weatherInfoAvg.Pressure += weatherInfo.Pressure
+		weatherInfoAvg.WindSpeed += weatherInfo.WindSpeed
+		weatherInfoAvg.WindDirection += weatherInfo.WindDirection
+		weatherInfoAvg.Rainfall += weatherInfo.Rainfall
+	}
+
+	div := len(weatherInfoSlice) - null
+
+	weatherInfoAvg.TempOUT /= div
+	weatherInfoAvg.Humidity /= div
+	weatherInfoAvg.TempIN /= float64(div)
+	weatherInfoAvg.Pressure /= float64(div)
+	weatherInfoAvg.WindSpeed /= float64(div)
+	weatherInfoAvg.WindDirection /= div
+	weatherInfoAvg.Rainfall /= div
+
+	return &weatherInfoAvg
+}
+
 func dataLastHourAvgHandler(resp http.ResponseWriter, req *http.Request) {
 	switch req.Method {
 	case "GET":
-		weatherInfoSlice := getLastHourRecords()
+		weatherInfoSlice := getLastHourRecords(time.Hour)
 
-		weatherInfoAvg := weatherInfo{}
-
-		null := 0
-
-		for _, weatherInfo := range weatherInfoSlice {
-			if weatherInfo == nil {
-				null++
-				continue
-			}
-
-			weatherInfoAvg.TempOUT += weatherInfo.TempOUT
-			weatherInfoAvg.Humidity += weatherInfo.Humidity
-			weatherInfoAvg.TempIN += weatherInfo.TempIN
-			weatherInfoAvg.Pressure += weatherInfo.Pressure
-			weatherInfoAvg.WindSpeed += weatherInfo.WindSpeed
-			weatherInfoAvg.WindDirection += weatherInfo.WindDirection
-			weatherInfoAvg.Rainfall += weatherInfo.Rainfall
-		}
-
-		div := len(weatherInfoSlice) - null
-
-		weatherInfoAvg.TempOUT /= div
-		weatherInfoAvg.Humidity /= div
-		weatherInfoAvg.TempIN /= float64(div)
-		weatherInfoAvg.Pressure /= float64(div)
-		weatherInfoAvg.WindSpeed /= float64(div)
-		weatherInfoAvg.WindDirection /= div
-		weatherInfoAvg.Rainfall /= div
+		weatherInfoAvg := getAvgForWeatherInfoSlice(weatherInfoSlice)
 
 		data, err := json.Marshal(weatherInfoAvg)
 		if err != nil {
@@ -291,7 +297,27 @@ func dataLastHourAvgHandler(resp http.ResponseWriter, req *http.Request) {
 func dataLastHourHandler(resp http.ResponseWriter, req *http.Request) {
 	switch req.Method {
 	case "GET":
-		weatherInfoSlice := getLastHourRecords()
+		weatherInfoSlice := getLastHourRecords(time.Hour)
+
+		jsonText, err := json.Marshal(weatherInfoSlice)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+
+		resp.Header().Set("Access-Control-Allow-Origin", "*")
+
+		if _, err := resp.Write(jsonText); err != nil {
+			fmt.Println(err)
+		}
+	}
+}
+
+func dataLastDayHandler(resp http.ResponseWriter, req *http.Request) {
+	fmt.Println("DEBUG")
+	switch req.Method {
+	case "GET":
+		weatherInfoSlice := getLastHourRecords(time.Hour * 24)
 
 		jsonText, err := json.Marshal(weatherInfoSlice)
 		if err != nil {
@@ -331,6 +357,7 @@ func main() {
 	http.HandleFunc("/data/last", dataLastHandler)
 	http.HandleFunc("/data/last_hour", dataLastHourHandler)
 	http.HandleFunc("/data/last_hour/avg", dataLastHourAvgHandler)
+	http.HandleFunc("/data/last_day", dataLastDayHandler)
 	fmt.Printf("listen on: %v\n", *listenAddr)
 	http.ListenAndServe(*listenAddr, nil)
 }
