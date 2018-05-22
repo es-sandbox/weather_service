@@ -1,18 +1,17 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
-	"io/ioutil"
-	"net/http"
-
 	"bytes"
 	"encoding/binary"
 	"encoding/gob"
+	"encoding/json"
 	"errors"
 	"flag"
+	"fmt"
 	"github.com/boltdb/bolt"
+	"io/ioutil"
 	"log"
+	"net/http"
 	"time"
 )
 
@@ -28,19 +27,25 @@ var db *bolt.DB
 
 // TODO(evg): review it
 type weatherInfo struct {
-	ID            uint64
-	TimeStamp     int64 // Unix TimeStamp
-	Temp          int
+	ID        uint64
+	TimeStamp int64 // Unix TimeStamp
+
+	TempOUT       int
 	Humidity      int
-	Pressure      int
-	WindSpeed     int
-	WindDirection string
+	TempIN        float64
+	Pressure      float64
+	WindSpeed     float64
+	WindDirection int
 	Rainfall      int
+	Battery       int
+	Thunder       int
+	Light         float64
+	Charging      int
 }
 
 // TODO(evg): remove it?
 func (w *weatherInfo) String() string {
-	return fmt.Sprintf("Temp: %v", w.Temp)
+	return fmt.Sprintf("Temp: %v", w.TempOUT)
 }
 
 func (w *weatherInfo) Serialize() ([]byte, error) {
@@ -99,7 +104,6 @@ func dataHandler(resp http.ResponseWriter, req *http.Request) {
 		}
 
 		resp.Header().Set("Access-Control-Allow-Origin", "*")
-
 
 		if _, err := resp.Write(jsonText); err != nil {
 			fmt.Println(err)

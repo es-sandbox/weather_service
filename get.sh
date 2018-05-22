@@ -1,4 +1,6 @@
 #!/bin/bash
 
-curl -XGET localhost:9000/data
+PORT=${1:-9000}
+
+curl -XGET localhost:$PORT/data
 echo
