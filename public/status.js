@@ -1,33 +1,39 @@
 var xhr = new XMLHttpRequest();
 
-xhr.open('GET', 'http://192.168.0.105:9000/data', true);
+iter();
 
-// xhr.setRequestHeader("Access-Control-Allow-Origin", "*");
+setInterval(iter, 2000);
 
-xhr.send(); // (1)
+function iter() {
+    xhr.open('GET', 'http://192.168.0.105:9000/data', true);
 
-xhr.onreadystatechange = function() { // (3)
-    if (xhr.readyState != 4) return;
+    // xhr.setRequestHeader("Access-Control-Allow-Origin", "*");
 
-    if (xhr.status != 200) {
-        console.log(xhr.status + ': ' + xhr.statusText);
-    } else {
-        // console.log(xhr.responseText);
+    xhr.send(); // (1)
 
-        var weatherInfo = JSON.parse(xhr.responseText);
-        lastRecord = weatherInfo.pop()
+    xhr.onreadystatechange = function() { // (3)
+        if (xhr.readyState != 4) return;
 
-        console.log("TimeStamp " + lastRecord.TimeStamp);
-        console.log("Battery " + lastRecord.Battery);
-        console.log("Charging " +  lastRecord.Charging);
+        if (xhr.status != 200) {
+            console.log(xhr.status + ': ' + xhr.statusText);
+        } else {
+            // console.log(xhr.responseText);
 
-        console.log(convertTimeStampToData(lastRecord.TimeStamp));
+            var weatherInfo = JSON.parse(xhr.responseText);
+            lastRecord = weatherInfo.pop()
 
-        document.getElementById("timestamp").innerHTML = convertTimeStampToData(lastRecord.TimeStamp)
-        document.getElementById("battery").innerHTML = lastRecord.Battery
-        document.getElementById("charging").innerHTML = convertIntToBool(lastRecord.Charging)
+            console.log("TimeStamp " + lastRecord.TimeStamp);
+            console.log("Battery " + lastRecord.Battery);
+            console.log("Charging " + lastRecord.Charging);
+
+            console.log(convertTimeStampToData(lastRecord.TimeStamp));
+
+            document.getElementById("timestamp").innerHTML = convertTimeStampToData(lastRecord.TimeStamp)
+            document.getElementById("battery").innerHTML = lastRecord.Battery
+            document.getElementById("charging").innerHTML = convertIntToBool(lastRecord.Charging)
+        }
     }
-};
+}
 
 function convertIntToBool(n) {
     if (n == 0) {
