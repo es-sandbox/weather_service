@@ -116,6 +116,9 @@ func dataHandler(resp http.ResponseWriter, req *http.Request) {
 			return
 		}
 
+		fmt.Printf("RECEIVED LEN: %v\n", len(data))
+		fmt.Printf("RECEIVED: %v\n", string(data))
+
 		weatherInfo := weatherInfo{}
 		if err := json.Unmarshal(data, &weatherInfo); err != nil {
 			fmt.Printf("can't parse data: %v\n", err)
@@ -167,5 +170,6 @@ func main() {
 	defer db.Close()
 
 	http.HandleFunc("/data", dataHandler)
+	fmt.Printf("listen on: %v\n", *listenAddr)
 	http.ListenAndServe(*listenAddr, nil)
 }
