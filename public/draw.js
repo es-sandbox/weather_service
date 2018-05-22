@@ -1,6 +1,6 @@
 var xhr = new XMLHttpRequest();
 
-xhr.open('GET', 'http://localhost:8080/api', true);
+xhr.open('GET', 'http://192.168.0.105:9000/data', true);
 
 // xhr.setRequestHeader("Access-Control-Allow-Origin", "*");
 
