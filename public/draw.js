@@ -16,19 +16,23 @@ xhr.onreadystatechange = function() { // (3)
 
         var weatherInfo = JSON.parse(xhr.responseText);
 
-        var xTemp = [], yTemp = [];
+        var xTempOUT = [], yTempOUT = [];
         var xHumidity = [], yHumidity = [];
+        var xTempIN = [], yTempIN = [];
         var xPressure = [], yPressure = [];
         var xWindSpeed = [], yWindSpeed = [];
         var xWindDirection = [], yWindDirection = [];
         var xRainfall = [], yRainfall = [];
 
         weatherInfo.forEach(function(item, i, arr) {
-            xTemp.push(item.ID);
-            yTemp.push(item.Temp);
+            xTempOUT.push(item.ID);
+            yTempOUT.push(item.TempOUT);
 
             xHumidity.push(item.ID);
             yHumidity.push(item.Humidity);
+
+            xTempIN.push(item.ID);
+            yTempIN.push(item.TempIN);
 
             xPressure.push(item.ID);
             yPressure.push(item.Pressure);
@@ -43,11 +47,14 @@ xhr.onreadystatechange = function() { // (3)
             yRainfall.push(item.Rainfall);
         });
 
-        TESTER = document.getElementById('Temp');
-        Plotly.plot( TESTER, [ {x: xTemp, y: yTemp} ], { margin: { t: 0 } } );
+        TESTER = document.getElementById('TempOUT');
+        Plotly.plot( TESTER, [ {x: xTempOUT, y: yTempOUT} ], { margin: { t: 0 } } );
 
         TESTER = document.getElementById('Humidity');
         Plotly.plot( TESTER, [ {x: xHumidity, y: yHumidity} ], { margin: { t: 0 } } );
+
+        TESTER = document.getElementById('TempIN');
+        Plotly.plot( TESTER, [ {x: xTempIN, y: yTempIN} ], { margin: { t: 0 } } );
 
         TESTER = document.getElementById('Pressure');
         Plotly.plot( TESTER, [ {x: xPressure, y: yPressure} ], { margin: { t: 0 } } );
