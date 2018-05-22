@@ -43,6 +43,12 @@ type weatherInfo struct {
 	Charging      int
 }
 
+func (w *weatherInfo) GetTime() time.Time {
+	sec := w.TimeStamp / 1e9
+	nsec := w.TimeStamp % 1e9
+	return time.Unix(sec, nsec)
+}
+
 // TODO(evg): remove it?
 func (w *weatherInfo) String() string {
 	return fmt.Sprintf("Temp: %v", w.TempOUT)
@@ -195,6 +201,61 @@ func dataLastHandler(resp http.ResponseWriter, req *http.Request) {
 	}
 }
 
+func dataLastHourHandler(resp http.ResponseWriter, req *http.Request) {
+	switch req.Method {
+	case "GET":
+		// var jsonText []byte
+		dataSlice := make([][]byte, 0)
+
+		err := db.View(func(tx *bolt.Tx) error {
+			b := tx.Bucket(bucketName)
+			if b == nil {
+				return bucketDoesNotExistError
+			}
+
+			return b.ForEach(func(key, value []byte) error {
+				data := make([]byte, len(value))
+				copy(data, value)
+				dataSlice = append(dataSlice, data)
+				return nil
+			})
+		})
+		if err != nil {
+			fmt.Printf("db's view error: %v\n", err)
+			return
+		}
+
+		weatherInfoSlice := make([]*weatherInfo, len(dataSlice))
+
+		for i, data := range dataSlice {
+			weatherInfo := &weatherInfo{}
+			if err := weatherInfo.Deserialize(data); err != nil {
+				fmt.Println(err)
+				return
+			}
+
+			if time.Now().Sub(weatherInfo.GetTime()) > time.Hour {
+				continue
+			}
+
+			weatherInfoSlice[i] = weatherInfo
+		}
+
+		jsonText, err := json.Marshal(weatherInfoSlice)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+
+		resp.Header().Set("Access-Control-Allow-Origin", "*")
+
+		if _, err := resp.Write(jsonText); err != nil {
+			fmt.Println(err)
+		}
+	}
+}
+
+
 // itob returns an 8-byte big endian representation of v.
 func itob(v uint64) []byte {
 	b := make([]byte, 8)
@@ -216,6 +277,7 @@ func main() {
 
 	http.HandleFunc("/data", dataHandler)
 	http.HandleFunc("/data/last", dataLastHandler)
+	http.HandleFunc("/data/last_hour", dataLastHourHandler)
 	fmt.Printf("listen on: %v\n", *listenAddr)
 	http.ListenAndServe(*listenAddr, nil)
 }
