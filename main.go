@@ -143,6 +143,51 @@ func dataHandler(resp http.ResponseWriter, req *http.Request) {
 	}
 }
 
+func dataLastHandler(resp http.ResponseWriter, req *http.Request) {
+	switch req.Method {
+	case "GET":
+		var data []byte
+
+		err := db.View(func(tx *bolt.Tx) error {
+			b := tx.Bucket(bucketName)
+			if b == nil {
+				return bucketDoesNotExistError
+			}
+
+			_, value := b.Cursor().Last()
+			if value == nil {
+				return keyDoesNotExist
+			}
+
+			data = make([]byte, len(value))
+			copy(data, value)
+			return nil
+		})
+		if err != nil {
+			fmt.Printf("db's view error: %v\n", err)
+			return
+		}
+
+		weatherInfo := weatherInfo{}
+		if err := weatherInfo.Deserialize(data); err != nil {
+			fmt.Println(err)
+			return
+		}
+
+		jsonText, err := json.Marshal(weatherInfo)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+
+		resp.Header().Set("Access-Control-Allow-Origin", "*")
+
+		if _, err := resp.Write(jsonText); err != nil {
+			fmt.Println(err)
+		}
+	}
+}
+
 // itob returns an 8-byte big endian representation of v.
 func itob(v uint64) []byte {
 	b := make([]byte, 8)
@@ -163,5 +208,6 @@ func main() {
 	defer db.Close()
 
 	http.HandleFunc("/data", dataHandler)
+	http.HandleFunc("/data/last", dataLastHandler)
 	http.ListenAndServe(*listenAddr, nil)
 }
