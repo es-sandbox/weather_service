@@ -50,6 +50,8 @@ function drawChartEvent(type) {
             drawWindSpeedChart(weatherInfo);
             drawWindDirectionChart(weatherInfo);
             drawRainfallChart(weatherInfo);
+
+            document.getElementById("battery").value = weatherInfo.pop().Battery;
         }
     };
 }
