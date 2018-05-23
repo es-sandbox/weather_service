@@ -43,9 +43,24 @@ func (w *weatherInfo) GetTime() time.Time {
 	return time.Unix(sec, nsec)
 }
 
-// TODO(evg): remove it?
 func (w *weatherInfo) String() string {
-	return fmt.Sprintf("Temp: %v", w.TempOUT)
+	tmpl := `
+	ID            %v
+	TimeStamp     %v
+	TempOUT       %v
+	Humidity      %v
+	TempIN        %v
+	Pressure      %v
+	WindSpeed     %v
+	WindDirection %v
+	Rainfall      %v
+	Battery       %v
+	Thunder       %v
+	Light         %v
+	Charging      %v
+	`
+	return fmt.Sprintf(tmpl, w.ID, w.TimeStamp, w.TempOUT, w.Humidity, w.TempIN, w.Pressure, w.WindSpeed, w.WindDirection,
+		w.Rainfall, w.Battery, w.Thunder, w.Light, w.Charging)
 }
 
 func (w *weatherInfo) Serialize() ([]byte, error) {

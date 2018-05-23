@@ -133,7 +133,7 @@ func dataLastDayAvgHandler(resp http.ResponseWriter, req *http.Request) {
 	case "GET":
 		avgLastDay := make([]*weatherInfo, 24)
 		for i := 0; i < 24; i++ {
-			left := time.Now().Add(-time.Hour * time.Duration(i + 1))
+			left := time.Now().Add(-time.Hour * time.Duration(i+1))
 			right := time.Now().Add(-time.Hour * time.Duration(i))
 
 			hourlyRecords := getBoundedInTimeRecords(left, right)
@@ -193,10 +193,44 @@ func dataLastMinuteHandler(resp http.ResponseWriter, req *http.Request) {
 	}
 }
 
+func launchCloudTest() {
+	weatherInfo := &weatherInfo{
+		TempOUT:       42,
+		Humidity:      43,
+		TempIN:        44,
+		Pressure:      45,
+		WindSpeed:     46,
+		WindDirection: 47,
+		Rainfall:      48,
+		Battery:       49,
+		Thunder:       50,
+		Light:         51,
+		Charging:      52,
+	}
+
+	if err := weatherInfo.sendToCloud(); err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	weatherInfo, err := newWeatherInfoFromCloud()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(weatherInfo)
+}
+
 func main() {
 	listenAddr := flag.String("listen", "0.0.0.0:9000", "address of http server, format: host:port")
 	daPath := flag.String("dbpath", "data.db", "absolute path to database, example: /tmp/my.db")
+	cloudTest := flag.Bool("cloud", false, "launch cloud testing and exit")
 	flag.Parse()
+
+	if *cloudTest {
+		launchCloudTest()
+		return
+	}
 
 	var err error
 	db, err = bolt.Open(*daPath, 0600, nil)
