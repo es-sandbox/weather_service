@@ -1,18 +1,30 @@
-<html>
-    <head>
-    </head>
-    <body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<nav class="top-menu">
+    <ul class="menu-main">
+        <li><a href="" class="current">Work</a></li>
+        <li><a href="">About</a></li>
+        <li><a href="">Blog</a></li>
+        <li><a href="">Contact</a></li>
+    </ul>
+</nav>
 
-    <div id="TempOUT" style="width:600px;height:250px;"></div>
-    <div id="Humidity" style="width:600px;height:250px;position: absolute;left: 650px; top: 0"></div>
-    <div id="TempIN" style="width:600px;height:250px;"></div>
-    <div id="Pressure" style="width:600px;height:250px;position: absolute;left: 650px; top: 250px"></div>
-    <div id="WindSpeed" style="width:600px;height:250px;"></div>
-    <div id="WindDirection" style="width:600px;height:250px;position: absolute;left: 650px; top: 500px;"></div>
-    <div id="Rainfall" style="width:600px;height:250px;"></div>
-    OK
+<div class="chart" id="temperature-outside"></div>
+<div class="chart" id="humidity"></div>
+<div class="chart" id="temperature-inside"></div>
+<div class="chart" id="pressure"></div>
+<div class="chart" id="wind-speed" ></div>
+<div class="chart" id="wind-direction"></div>
+<div class="chart" id="rainfall"></div>
+OK
 
-    <script src="plotly-latest.min.js"></script>
-    <script src="draw.js"></script>
-    </body>
+<script src="plotly-latest.min.js"></script>
+<script src="draw.js"></script>
+</body>
 </html>

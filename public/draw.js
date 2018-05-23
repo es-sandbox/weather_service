@@ -18,124 +18,101 @@ function iter() {
         if (xhr.status != 200) {
             console.log(xhr.status + ': ' + xhr.statusText);
         } else {
-            console.log(xhr.responseText);
+            // console.log(xhr.responseText);
 
             var weatherInfo = JSON.parse(xhr.responseText);
-
-            var xTempOUT = [], yTempOUT = [];
-            var xHumidity = [], yHumidity = [];
-            var xTempIN = [], yTempIN = [];
-            var xPressure = [], yPressure = [];
-            var xWindSpeed = [], yWindSpeed = [];
-            var xWindDirection = [], yWindDirection = [];
-            var xRainfall = [], yRainfall = [];
-
-            weatherInfo.forEach(function (item, i, arr) {
-                xTempOUT.push(item.ID);
-                yTempOUT.push(item.TempOUT);
-
-                xHumidity.push(item.ID);
-                yHumidity.push(item.Humidity);
-
-                xTempIN.push(item.ID);
-                yTempIN.push(item.TempIN);
-
-                xPressure.push(item.ID);
-                yPressure.push(item.Pressure);
-
-                xWindSpeed.push(item.ID);
-                yWindSpeed.push(item.WindSpeed);
-
-                xWindDirection.push(item.ID);
-                yWindDirection.push(item.WindDirection);
-
-                xRainfall.push(item.ID);
-                yRainfall.push(item.Rainfall);
-            });
-
-            var layout = {
-                xaxis: {
-                    title: 'Timeline'
-                },
-                yaxis: {
-                    title: 'Temperature Outside'
-                }
-            };
-
-            TESTER = document.getElementById('TempOUT');
-            Plotly.plot(TESTER, [{x: xTempOUT, y: yTempOUT}], layout);
-
-            layout = {
-                xaxis: {
-                    title: 'Timeline'
-                },
-                yaxis: {
-                    title: 'Humidity'
-                }
-            };
-
-            TESTER = document.getElementById('Humidity');
-            Plotly.plot(TESTER, [{x: xHumidity, y: yHumidity}], layout);
-
-            layout = {
-                xaxis: {
-                    title: 'Timeline'
-                },
-                yaxis: {
-                    title: 'Temperature Inside'
-                }
-            };
-
-            TESTER = document.getElementById('TempIN');
-            Plotly.plot(TESTER, [{x: xTempIN, y: yTempIN}], layout);
-
-            layout = {
-                xaxis: {
-                    title: 'Timeline'
-                },
-                yaxis: {
-                    title: 'Pressure'
-                }
-            };
-
-            TESTER = document.getElementById('Pressure');
-            Plotly.plot(TESTER, [{x: xPressure, y: yPressure}], layout);
-
-            layout = {
-                xaxis: {
-                    title: 'Timeline'
-                },
-                yaxis: {
-                    title: 'WindSpeed'
-                }
-            };
-
-            TESTER = document.getElementById('WindSpeed');
-            Plotly.plot(TESTER, [{x: xWindSpeed, y: yWindSpeed}], layout);
-
-            layout = {
-                xaxis: {
-                    title: 'Timeline'
-                },
-                yaxis: {
-                    title: 'WindDirection'
-                }
-            };
-
-            TESTER = document.getElementById('WindDirection');
-            Plotly.plot(TESTER, [{x: xWindDirection, y: yWindDirection}], layout);
-
-            layout = {
-                xaxis: {
-                    title: 'Timeline'
-                },
-                yaxis: {
-                    title: 'Rainfall'
-                }
-            };
-
-            TESTER = document.getElementById('Rainfall');
-            Plotly.plot(TESTER, [{x: xRainfall, y: yRainfall}], layout);
+            drawTemperatureOutsideChart(weatherInfo);
+            drawHumidityChart(weatherInfo);
+            drawTemperatureInsideChart(weatherInfo);
+            drawPressureChart(weatherInfo);
+            drawWindSpeedChart(weatherInfo);
+            drawWindDirectionChart(weatherInfo);
+            drawRainfallChart(weatherInfo);
         }
     };
+}
+
+function drawTemperatureOutsideChart(arr) {
+    var xTempOutside = [], yTempOutside = [];
+    arr.forEach(function (item, i, arr) {
+        xTempOutside.push(item.ID);
+        yTempOutside.push(item.TempOUT)
+    });
+
+    var layout = { xaxis: { title: 'Timeline' }, yaxis: { title: 'Temperature Outside' } };
+    var tempOutside = document.getElementById('temperature-outside');
+    Plotly.plot(tempOutside, [ {x: xTempOutside, y: yTempOutside} ], layout);
+}
+
+function drawHumidityChart(arr) {
+    var xHumidity = [], yHumidity = [];
+    arr.forEach(function (item, i, arr) {
+        xHumidity.push(item.ID);
+        yHumidity.push(item.Humidity);
+    });
+
+    var layout = { xaxis: { title: 'Timeline' }, yaxis: { title: 'Humidity' } };
+    var humidity = document.getElementById('humidity');
+    Plotly.plot(humidity, [ {x: xHumidity, y: yHumidity} ], layout);
+}
+
+function drawTemperatureInsideChart(arr) {
+    var xTempInside = [], yTempInside = [];
+    arr.forEach(function (item, i, arr) {
+        xTempInside.push(item.ID);
+        yTempInside.push(item.TempIN);
+    });
+
+    var layout = { xaxis: { title: 'Timeline' }, yaxis: { title: 'Temperature Inside' } };
+    var tempInside = document.getElementById('temperature-inside');
+    Plotly.plot(tempInside, [ {x: xTempInside, y: yTempInside} ], layout);
+}
+
+function drawPressureChart(arr) {
+    var xPressure = [], yPressure = [];
+    arr.forEach(function (item, i, arr) {
+        xPressure.push(item.ID);
+        yPressure.push(item.Pressure);
+    });
+
+    var layout = { xaxis: { title: 'Timeline' }, yaxis: { title: 'Pressure' } };
+    var pressure = document.getElementById('pressure');
+    Plotly.plot(pressure, [ {x: xPressure, y: yPressure} ], layout);
+}
+
+function drawWindSpeedChart(arr) {
+    var xWindSpeed = [], yWindSpeed = [];
+    arr.forEach(function (item, i, arr) {
+        xWindSpeed.push(item.ID);
+        yWindSpeed.push(item.WindSpeed);
+    });
+
+    var layout = { xaxis: { title: 'Timeline' }, yaxis: { title: 'WindSpeed' } };
+    var windSpeed = document.getElementById('wind-speed');
+    Plotly.plot(windSpeed, [ {x: xWindSpeed, y: yWindSpeed} ], layout);
+}
+
+function drawWindDirectionChart(arr) {
+    var xWindDirection = [], yWindDirection = [];
+    arr.forEach(function (item, i, arr) {
+        xWindDirection.push(item.ID);
+        yWindDirection.push(item.WindDirection);
+    });
+
+    var layout = { xaxis: { title: 'Timeline' }, yaxis: { title: 'WindDirection' } };
+    var windDirection = document.getElementById('wind-direction');
+    Plotly.plot(windDirection, [ {x: xWindDirection, y: yWindDirection} ], layout);
+}
+
+function drawRainfallChart(arr) {
+    var xRainfall = [], yRainfall = [];
+    arr.forEach(function (item, i, arr) {
+        xRainfall.push(item.ID);
+        yRainfall.push(item.Rainfall);
+    });
+
+
+    var layout = { xaxis: { title: 'Timeline' }, yaxis: { title: 'Rainfall' } };
+    var rainfall = document.getElementById('rainfall');
+    Plotly.plot(rainfall, [ {x: xRainfall, y: yRainfall} ], layout);
 }
