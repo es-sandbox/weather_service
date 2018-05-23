@@ -18,7 +18,7 @@ function iter() {
         if (xhr.status != 200) {
             console.log(xhr.status + ': ' + xhr.statusText);
         } else {
-            console.log(xhr.responseText);
+            // console.log(xhr.responseText);
 
             var weatherInfo = JSON.parse(xhr.responseText);
 
@@ -136,6 +136,27 @@ function iter() {
 
             TESTER = document.getElementById('Rainfall');
             Plotly.plot(TESTER, [{x: xRainfall, y: yRainfall}], layout);
+
+
+            lastRecord = weatherInfo.pop()
+
+            document.getElementById("timestamp").innerHTML = convertTimeStampToData(lastRecord.TimeStamp)
+            document.getElementById("battery").innerHTML = lastRecord.Battery
+            document.getElementById("charging").innerHTML = convertIntToBool(lastRecord.Charging)
         }
     };
+}
+
+function convertIntToBool(n) {
+    if (n == 0) {
+        return false
+    }
+    return true
+}
+
+function convertTimeStampToData(unix_timestamp) {
+    // Create a new JavaScript Date object based on the timestamp
+    // multiplied by 1000 so that the argument is in milliseconds, not seconds.
+    var date = new Date(unix_timestamp / 1000000);
+    return date.toString();
 }

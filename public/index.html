@@ -1,15 +1,57 @@
 <html>
     <head>
+        <link rel="stylesheet" type="text/css" href="style.css">
     </head>
     <body>
 
+    <div class="status-bar" align="center">
+        <p align="center">LastUpdated: <span id="timestamp"></span></p>
+        <p align="center">Battery:     <span id="battery"></span>%</p>
+        <p align="center">Charging:    <span id="charging"></span></p>
+    </div>
+
     <div id="TempOUT" style="width:600px;height:250px;"></div>
-    <div id="Humidity" style="width:600px;height:250px;position: absolute;left: 650px; top: 0"></div>
+    <div id="TempOUTDesc" class="item">What is Lorem Ipsum?
+        Lorem Ipsum is simply dummy text of the printing and typesetting industry.
+        Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,
+        when an</div>
+    <img src="temp_out.jpg" id="TempOUTIMG" class="item">
+
+    <div id="Humidity" style="width:600px;height:250px;"></div>
+    <div id="HumidityDesc" class="item">
+        <b>
+        <p>voltage: 3.3 to 5 VDC</p>
+        <p>outputs: one analogue + one digital output</p>
+        <p>fixation: 1 mounting screw hole 3 mm</p>
+        <p>frequency response: 50 Hz - 20 KHz</p>
+        </b>
+    </div>
+    <img src="humidity.jpg" id="HumidityIMG" class="item">
+
     <div id="TempIN" style="width:600px;height:250px;"></div>
-    <div id="Pressure" style="width:600px;height:250px;position: absolute;left: 650px; top: 250px"></div>
+    <div id="TempINDesc" class="item">What is Lorem Ipsum?
+        Lorem Ipsum is simply dummy text of the printing and typesetting industry.
+        Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,
+        when an</div>
+    <img src="thermometer.png" id="TempINIMG" class="item">
+
+
+    <div id="Pressure" style="width:600px;height:250px;"></div>
+    <div id="PressureDesc" class="item"><b>
+        <p>Adafruit BMP280</p>
+        <p>Barometric Pressure +</p>
+        <p>Temperature</p>
+        <p>Sensor Breakout</p></b></div>
+    <img src="temp_and_pressure.jpg" id="PressureIMG" class="item">
+
     <div id="WindSpeed" style="width:600px;height:250px;"></div>
-    <div id="WindDirection" style="width:600px;height:250px;position: absolute;left: 650px; top: 500px;"></div>
+    <div id="WindDirection" style="width:600px;height:250px;"></div>
     <div id="Rainfall" style="width:600px;height:250px;"></div>
+    <div id="RainfallDesc" class="item">What is Lorem Ipsum?
+        Lorem Ipsum is simply dummy text of the printing and typesetting industry.
+        Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,
+        when an</div>
+    <img src="1.jpg" id="RainfallIMG" class="item">
     OK
 
     <script src="plotly-latest.min.js"></script>
