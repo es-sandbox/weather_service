@@ -1,19 +1,31 @@
 var xhr = new XMLHttpRequest();
 
-drawChartEvent();
+drawChartEvent("allRecords");
 
 // setInterval(iter, 2000);
 
 function drawChartEvent(type) {
     var endpoint = 'http://192.168.0.105:9000/data';
+
+    document.getElementById("allRecords").className = "";
+    document.getElementById("dailyRecords").className = "";
+    document.getElementById("hourlyRecords").className = "";
+    document.getElementById("lastMinuteRecords").className = "";
+
+    if (type == "allRecords") {
+        document.getElementById("allRecords").className = "current"
+    }
     if (type == 'dailyRecords') {
         endpoint = 'http://192.168.0.105:9000/data/last_day';
+        document.getElementById("dailyRecords").className = "current"
     }
     if (type == 'hourlyRecords') {
         endpoint = 'http://192.168.0.105:9000/data/last_hour';
+        document.getElementById("hourlyRecords").className = "current"
     }
     if (type == 'lastMinuteRecords') {
         endpoint = 'http://192.168.0.105:9000/data/last_minute';
+        document.getElementById("lastMinuteRecords").className = "current"
     }
 
     xhr.open('GET', endpoint, true);
