@@ -1,12 +1,19 @@
 var xhr = new XMLHttpRequest();
 
-iter();
+drawChartEvent();
 
 // setInterval(iter, 2000);
 
-function iter() {
+function drawChartEvent(type) {
+    var endpoint = 'http://192.168.0.105:9000/data';
+    if (type == 'dailyRecords') {
+        endpoint = 'http://192.168.0.105:9000/data/last_day';
+    }
+    if (type == 'hourlyRecords') {
+        endpoint = 'http://192.168.0.105:9000/data/last_hour';
+    }
 
-    xhr.open('GET', 'http://192.168.0.105:9000/data', true);
+    xhr.open('GET', endpoint, true);
 
     // xhr.setRequestHeader("Access-Control-Allow-Origin", "*");
 
@@ -41,6 +48,7 @@ function drawTemperatureOutsideChart(arr) {
 
     var layout = { xaxis: { title: 'Timeline' }, yaxis: { title: 'Temperature Outside' } };
     var tempOutside = document.getElementById('temperature-outside');
+    Plotly.purge(tempOutside);
     Plotly.plot(tempOutside, [ {x: xTempOutside, y: yTempOutside} ], layout);
 }
 
@@ -53,6 +61,7 @@ function drawHumidityChart(arr) {
 
     var layout = { xaxis: { title: 'Timeline' }, yaxis: { title: 'Humidity' } };
     var humidity = document.getElementById('humidity');
+    Plotly.purge(humidity);
     Plotly.plot(humidity, [ {x: xHumidity, y: yHumidity} ], layout);
 }
 
@@ -65,6 +74,7 @@ function drawTemperatureInsideChart(arr) {
 
     var layout = { xaxis: { title: 'Timeline' }, yaxis: { title: 'Temperature Inside' } };
     var tempInside = document.getElementById('temperature-inside');
+    Plotly.purge(tempInside);
     Plotly.plot(tempInside, [ {x: xTempInside, y: yTempInside} ], layout);
 }
 
@@ -77,6 +87,7 @@ function drawPressureChart(arr) {
 
     var layout = { xaxis: { title: 'Timeline' }, yaxis: { title: 'Pressure' } };
     var pressure = document.getElementById('pressure');
+    Plotly.purge(pressure);
     Plotly.plot(pressure, [ {x: xPressure, y: yPressure} ], layout);
 }
 
@@ -89,6 +100,7 @@ function drawWindSpeedChart(arr) {
 
     var layout = { xaxis: { title: 'Timeline' }, yaxis: { title: 'WindSpeed' } };
     var windSpeed = document.getElementById('wind-speed');
+    Plotly.purge(windSpeed);
     Plotly.plot(windSpeed, [ {x: xWindSpeed, y: yWindSpeed} ], layout);
 }
 
@@ -101,6 +113,7 @@ function drawWindDirectionChart(arr) {
 
     var layout = { xaxis: { title: 'Timeline' }, yaxis: { title: 'WindDirection' } };
     var windDirection = document.getElementById('wind-direction');
+    Plotly.purge(windDirection);
     Plotly.plot(windDirection, [ {x: xWindDirection, y: yWindDirection} ], layout);
 }
 
@@ -111,8 +124,8 @@ function drawRainfallChart(arr) {
         yRainfall.push(item.Rainfall);
     });
 
-
     var layout = { xaxis: { title: 'Timeline' }, yaxis: { title: 'Rainfall' } };
     var rainfall = document.getElementById('rainfall');
+    Plotly.purge(rainfall);
     Plotly.plot(rainfall, [ {x: xRainfall, y: yRainfall} ], layout);
 }

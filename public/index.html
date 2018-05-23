@@ -2,18 +2,17 @@
 <html lang="en">
 <head>
     <link rel="stylesheet" type="text/css" href="style.css">
+    <link rel="stylesheet" type="text/css" href="demo.css">
     <meta charset="UTF-8">
     <title>Title</title>
 </head>
 <body>
-<nav class="top-menu">
-    <ul class="menu-main">
-        <li><a href="" class="current">Work</a></li>
-        <li><a href="">About</a></li>
-        <li><a href="">Blog</a></li>
-        <li><a href="">Contact</a></li>
-    </ul>
-</nav>
+<!-- Tab links -->
+<div class="tab">
+    <button class="tablinks" onclick="drawChartEvent('allRecords')">All records</button>
+    <button class="tablinks" onclick="drawChartEvent('dailyRecords')">Daily records</button>
+    <button class="tablinks" onclick="drawChartEvent('hourlyRecords')">Hourly records</button>
+</div>
 
 <div class="chart" id="temperature-outside"></div>
 <div class="chart" id="humidity"></div>
