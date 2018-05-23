@@ -1,11 +1,7 @@
 package main
 
 import (
-	"bytes"
-	"encoding/binary"
-	"encoding/gob"
 	"encoding/json"
-	"errors"
 	"flag"
 	"fmt"
 	"github.com/boltdb/bolt"
@@ -15,95 +11,12 @@ import (
 	"time"
 )
 
-var (
-	bucketDoesNotExistError = errors.New("bucket does not exist")
-	keyDoesNotExist         = errors.New("key does not exist")
-
-	bucketName = []byte("bucket")
-	keyName    = []byte("key")
-)
-
-var db *bolt.DB
-
-// TODO(evg): review it
-type weatherInfo struct {
-	ID        uint64
-	TimeStamp int64 // Unix TimeStamp
-
-	TempOUT       int
-	Humidity      int
-	TempIN        float64
-	Pressure      float64
-	WindSpeed     float64
-	WindDirection int
-	Rainfall      int
-	Battery       int
-	Thunder       int
-	Light         float64
-	Charging      int
-}
-
-func (w *weatherInfo) GetTime() time.Time {
-	sec := w.TimeStamp / 1e9
-	nsec := w.TimeStamp % 1e9
-	return time.Unix(sec, nsec)
-}
-
-// TODO(evg): remove it?
-func (w *weatherInfo) String() string {
-	return fmt.Sprintf("Temp: %v", w.TempOUT)
-}
-
-func (w *weatherInfo) Serialize() ([]byte, error) {
-	var buf bytes.Buffer
-	if err := gob.NewEncoder(&buf).Encode(w); err != nil {
-		return nil, err
-	}
-	return buf.Bytes(), nil
-}
-
-func (w *weatherInfo) Deserialize(data []byte) error {
-	buf := bytes.NewBuffer(data)
-	return gob.NewDecoder(buf).Decode(w)
-}
-
 func dataHandler(resp http.ResponseWriter, req *http.Request) {
 	switch req.Method {
 	case "GET":
-		// var jsonText []byte
-		dataSlice := make([][]byte, 0)
+		allRecords := getAllRecordsWithErrorSuppressing()
 
-		err := db.View(func(tx *bolt.Tx) error {
-			b := tx.Bucket(bucketName)
-			if b == nil {
-				return bucketDoesNotExistError
-			}
-
-			return b.ForEach(func(key, value []byte) error {
-				data := make([]byte, len(value))
-				copy(data, value)
-				dataSlice = append(dataSlice, data)
-				return nil
-			})
-		})
-		if err != nil {
-			fmt.Printf("db's view error: %v\n", err)
-			return
-		}
-
-		weatherInfoSlice := make([]*weatherInfo, len(dataSlice))
-
-		for i, data := range dataSlice {
-			weatherInfo := &weatherInfo{}
-			if err := weatherInfo.Deserialize(data); err != nil {
-				fmt.Println(err)
-				return
-			}
-
-			weatherInfoSlice[i] = weatherInfo
-		}
-
-		jsonText, err := json.Marshal(weatherInfoSlice)
+		jsonText, err := json.Marshal(allRecords)
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -159,30 +72,8 @@ func dataHandler(resp http.ResponseWriter, req *http.Request) {
 func dataLastHandler(resp http.ResponseWriter, req *http.Request) {
 	switch req.Method {
 	case "GET":
-		var data []byte
-
-		err := db.View(func(tx *bolt.Tx) error {
-			b := tx.Bucket(bucketName)
-			if b == nil {
-				return bucketDoesNotExistError
-			}
-
-			_, value := b.Cursor().Last()
-			if value == nil {
-				return keyDoesNotExist
-			}
-
-			data = make([]byte, len(value))
-			copy(data, value)
-			return nil
-		})
+		weatherInfo, err := getLastRecord()
 		if err != nil {
-			fmt.Printf("db's view error: %v\n", err)
-			return
-		}
-
-		weatherInfo := weatherInfo{}
-		if err := weatherInfo.Deserialize(data); err != nil {
 			fmt.Println(err)
 			return
 		}
@@ -201,95 +92,19 @@ func dataLastHandler(resp http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func getLastHourRecords(timespan time.Duration) []*weatherInfo {
-	// var jsonText []byte
-	dataSlice := make([][]byte, 0)
-
-	err := db.View(func(tx *bolt.Tx) error {
-		b := tx.Bucket(bucketName)
-		if b == nil {
-			return bucketDoesNotExistError
-		}
-
-		return b.ForEach(func(key, value []byte) error {
-			data := make([]byte, len(value))
-			copy(data, value)
-			dataSlice = append(dataSlice, data)
-			return nil
-		})
-	})
-	if err != nil {
-		fmt.Printf("db's view error: %v\n", err)
-		return nil
-	}
-
-	weatherInfoSlice := make([]*weatherInfo, len(dataSlice))
-
-	for i, data := range dataSlice {
-		weatherInfo := &weatherInfo{}
-		if err := weatherInfo.Deserialize(data); err != nil {
-			fmt.Println(err)
-			return nil
-		}
-
-		if time.Now().Sub(weatherInfo.GetTime()) > timespan {
-			continue
-		}
-
-		weatherInfoSlice[i] = weatherInfo
-	}
-	return weatherInfoSlice
-}
-
-func getAvgForWeatherInfoSlice(weatherInfoSlice []*weatherInfo) *weatherInfo {
-	weatherInfoAvg := weatherInfo{}
-
-	null := 0
-
-	for _, weatherInfo := range weatherInfoSlice {
-		if weatherInfo == nil {
-			null++
-			continue
-		}
-
-		weatherInfoAvg.TempOUT += weatherInfo.TempOUT
-		weatherInfoAvg.Humidity += weatherInfo.Humidity
-		weatherInfoAvg.TempIN += weatherInfo.TempIN
-		weatherInfoAvg.Pressure += weatherInfo.Pressure
-		weatherInfoAvg.WindSpeed += weatherInfo.WindSpeed
-		weatherInfoAvg.WindDirection += weatherInfo.WindDirection
-		weatherInfoAvg.Rainfall += weatherInfo.Rainfall
-	}
-
-	div := len(weatherInfoSlice) - null
-
-	weatherInfoAvg.TempOUT /= div
-	weatherInfoAvg.Humidity /= div
-	weatherInfoAvg.TempIN /= float64(div)
-	weatherInfoAvg.Pressure /= float64(div)
-	weatherInfoAvg.WindSpeed /= float64(div)
-	weatherInfoAvg.WindDirection /= div
-	weatherInfoAvg.Rainfall /= div
-
-	return &weatherInfoAvg
-}
-
 func dataLastHourAvgHandler(resp http.ResponseWriter, req *http.Request) {
 	switch req.Method {
 	case "GET":
-		weatherInfoSlice := getLastHourRecords(time.Hour)
+		avg := avg(getLastHourRecords())
 
-		weatherInfoAvg := getAvgForWeatherInfoSlice(weatherInfoSlice)
-
-		data, err := json.Marshal(weatherInfoAvg)
+		jsonText, err := json.Marshal(avg)
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
 
-		if _, err := resp.Write(data); err != nil {
+		if _, err := resp.Write(jsonText); err != nil {
 			fmt.Println(err)
-			return
 		}
 	}
 }
@@ -297,15 +112,39 @@ func dataLastHourAvgHandler(resp http.ResponseWriter, req *http.Request) {
 func dataLastHourHandler(resp http.ResponseWriter, req *http.Request) {
 	switch req.Method {
 	case "GET":
-		weatherInfoSlice := getLastHourRecords(time.Hour)
+		lastHourRecords := getLastHourRecords()
 
-		jsonText, err := json.Marshal(weatherInfoSlice)
+		jsonText, err := json.Marshal(lastHourRecords)
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
 
 		resp.Header().Set("Access-Control-Allow-Origin", "*")
+
+		if _, err := resp.Write(jsonText); err != nil {
+			fmt.Println(err)
+		}
+	}
+}
+
+func dataLastDayAvgHandler(resp http.ResponseWriter, req *http.Request) {
+	switch req.Method {
+	case "GET":
+		avgLastDay := make([]*weatherInfo, 24)
+		for i := 0; i < 24; i++ {
+			left := time.Now().Add(-time.Hour * time.Duration(i + 1))
+			right := time.Now().Add(-time.Hour * time.Duration(i))
+
+			hourlyRecords := getBoundedInTimeRecords(left, right)
+			avgLastDay[i] = avg(hourlyRecords)
+		}
+
+		jsonText, err := json.Marshal(avgLastDay)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
 
 		if _, err := resp.Write(jsonText); err != nil {
 			fmt.Println(err)
@@ -314,12 +153,11 @@ func dataLastHourHandler(resp http.ResponseWriter, req *http.Request) {
 }
 
 func dataLastDayHandler(resp http.ResponseWriter, req *http.Request) {
-	fmt.Println("DEBUG")
 	switch req.Method {
 	case "GET":
-		weatherInfoSlice := getLastHourRecords(time.Hour * 24)
+		lastDayRecords := getLastDayRecords()
 
-		jsonText, err := json.Marshal(weatherInfoSlice)
+		jsonText, err := json.Marshal(lastDayRecords)
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -331,14 +169,6 @@ func dataLastDayHandler(resp http.ResponseWriter, req *http.Request) {
 			fmt.Println(err)
 		}
 	}
-}
-
-
-// itob returns an 8-byte big endian representation of v.
-func itob(v uint64) []byte {
-	b := make([]byte, 8)
-	binary.BigEndian.PutUint64(b, uint64(v))
-	return b
 }
 
 func main() {
@@ -358,6 +188,7 @@ func main() {
 	http.HandleFunc("/data/last_hour", dataLastHourHandler)
 	http.HandleFunc("/data/last_hour/avg", dataLastHourAvgHandler)
 	http.HandleFunc("/data/last_day", dataLastDayHandler)
+	http.HandleFunc("/data/last_day/avg", dataLastDayAvgHandler)
 	fmt.Printf("listen on: %v\n", *listenAddr)
 	http.ListenAndServe(*listenAddr, nil)
 }
