@@ -137,6 +137,12 @@ func getLastDayRecords() []*weatherInfo {
 	return getBoundedInTimeRecords(left, right)
 }
 
+func getLastMinuteRecords() []*weatherInfo {
+	left := time.Now().Add(-time.Minute)
+	right := time.Now()
+	return getBoundedInTimeRecords(left, right)
+}
+
 func avg(recordSlice []*weatherInfo) *weatherInfo {
 	avg := weatherInfo{}
 

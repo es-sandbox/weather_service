@@ -12,6 +12,9 @@ function drawChartEvent(type) {
     if (type == 'hourlyRecords') {
         endpoint = 'http://192.168.0.105:9000/data/last_hour';
     }
+    if (type == 'lastMinuteRecords') {
+        endpoint = 'http://192.168.0.105:9000/data/last_minute';
+    }
 
     xhr.open('GET', endpoint, true);
 

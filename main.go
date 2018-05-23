@@ -138,6 +138,9 @@ func dataLastDayAvgHandler(resp http.ResponseWriter, req *http.Request) {
 
 			hourlyRecords := getBoundedInTimeRecords(left, right)
 			avgLastDay[i] = avg(hourlyRecords)
+			if avgLastDay[i] != nil {
+				avgLastDay[i].ID = uint64(i)
+			}
 		}
 
 		jsonText, err := json.Marshal(avgLastDay)
@@ -171,6 +174,25 @@ func dataLastDayHandler(resp http.ResponseWriter, req *http.Request) {
 	}
 }
 
+func dataLastMinuteHandler(resp http.ResponseWriter, req *http.Request) {
+	switch req.Method {
+	case "GET":
+		lastMinuteRecords := getLastMinuteRecords()
+
+		jsonText, err := json.Marshal(lastMinuteRecords)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+
+		resp.Header().Set("Access-Control-Allow-Origin", "*")
+
+		if _, err := resp.Write(jsonText); err != nil {
+			fmt.Println(err)
+		}
+	}
+}
+
 func main() {
 	listenAddr := flag.String("listen", "0.0.0.0:9000", "address of http server, format: host:port")
 	daPath := flag.String("dbpath", "data.db", "absolute path to database, example: /tmp/my.db")
@@ -189,6 +211,7 @@ func main() {
 	http.HandleFunc("/data/last_hour/avg", dataLastHourAvgHandler)
 	http.HandleFunc("/data/last_day", dataLastDayHandler)
 	http.HandleFunc("/data/last_day/avg", dataLastDayAvgHandler)
+	http.HandleFunc("/data/last_minute", dataLastMinuteHandler)
 	fmt.Printf("listen on: %v\n", *listenAddr)
 	http.ListenAndServe(*listenAddr, nil)
 }
