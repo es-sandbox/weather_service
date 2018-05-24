@@ -180,7 +180,7 @@
     .menu-main a {display: block;}
 }
 
-button {
+nav ul li button {
     background-color: #5A394E; /* Green */
     border: none;
     color: white;
@@ -191,11 +191,11 @@ button {
     font-size: 16px;
 }
 
-button:focus {
+nav ul li button:focus {
     outline: none;
 }
 
-button:hover {
+nav ul li button:hover {
     cursor: pointer;
 }
 

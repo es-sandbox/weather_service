@@ -4,6 +4,55 @@ drawChartEvent("allRecords");
 
 // setInterval(iter, 2000);
 
+function getStatusString(connectionStatus, batteryLevel, chargingStatus, fireStatus, snowStatus) {
+    var status = ''
+    if (connectionStatus) {
+        status += "connected, "
+    } else {
+        status += "not connected, "
+    }
+
+    status += "battery level: 59%, ";
+
+    if (chargingStatus) {
+        status += "charging, "
+    } else {
+        status += "not charging, "
+    }
+
+    if (fireStatus) {
+        status += 'fire, '
+    }
+
+    if (snowStatus) {
+        status += 'snow, '
+    }
+
+    return status
+}
+
+function boolToString(value) {
+    if (value) {
+        return "OK"
+    } else {
+        return "Fail"
+    }
+}
+
+function getStatusString2(connectionStatus, batteryLevel, chargingStatus, fireStatus, snowStatus) {
+    var status = "ConnectionStatus: " + boolToString(connectionStatus) + "\n" +
+                 "BatteryLevel: " + batteryLevel + "\n" +
+                 "ChargingStatus:" + boolToString(chargingStatus) + "\n";
+
+    if (fireStatus) {
+        status += "FIRE\n";
+    }
+    if (snowStatus) {
+        status += "SNOW\n";
+    }
+    return status
+}
+
 function drawChartEvent(type) {
     var endpoint = 'http://192.168.0.105:9000/data';
 
@@ -33,6 +82,10 @@ function drawChartEvent(type) {
         document.getElementById("location").className = "current"
     }
 
+    if (type == 'status') {
+        endpoint = 'http://192.168.0.105:9000/data/last_minute';
+    }
+
     xhr.open('GET', endpoint, true);
 
     // xhr.setRequestHeader("Access-Control-Allow-Origin", "*");
@@ -59,7 +112,34 @@ function drawChartEvent(type) {
                 Plotly.purge(document.getElementById('rainfall'));
 
                 document.getElementById("map").style.display = "block";
-            } else {
+            } else if (type == 'status') {
+                var connectionStatus = (weatherInfo.length > 0);
+                if (!connectionStatus) {
+                    var status = getStatusString2(connectionStatus, 0, false, false, false);
+                    x0p('status', status, 'info');
+                    return
+                }
+
+                var fireStatus = false;
+                var snowStatus = false;
+
+                weatherInfo.forEach(function (item, i, weatherInfo) {
+                   if (item.Fire) {
+                       fireStatus = true;
+                   }
+                   if (item.Snow) {
+                       snowStatus = true;
+                   }
+                });
+
+                var lastElem =  weatherInfo.pop();
+                var batteryLevel = lastElem.Battery;
+                var chargingStatus = lastElem.Charging;
+
+                var status = getStatusString2(connectionStatus, batteryLevel, chargingStatus, fireStatus, snowStatus);
+                x0p('status', status, 'info');
+            }
+            else {
                 document.getElementById("map").style.display = "none";
 
                 drawTemperatureOutsideChart(weatherInfo);
