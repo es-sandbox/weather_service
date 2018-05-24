@@ -4,6 +4,20 @@
     <link rel="stylesheet" type="text/css" href="style.css">
     <meta charset="UTF-8">
     <title>Title</title>
+
+    <style>
+        /* Set the size of the div element that contains the map */
+        #map {
+            height: 600px;  /* The height is 400 pixels */
+            width: 100%;  /* The width is the width of the web page */
+        }
+
+        #map {
+            position: absolute;
+            top: 100px;
+            display: none;
+        }
+    </style>
 </head>
 <body>
 <!-- Tab links -->
@@ -13,6 +27,7 @@
         <li><button onclick="drawChartEvent('dailyRecords')" id="dailyRecords">Daily records</button></li>
         <li><button onclick="drawChartEvent('hourlyRecords')" id="hourlyRecords">Hourly records</button></li>
         <li><button onclick="drawChartEvent('lastMinuteRecords')" id="lastMinuteRecords">Last minute records</button></li>
+        <li><button onclick="drawChartEvent('location')" id="location">Location</button></li>
     </ul>
 </nav>
 
@@ -25,7 +40,35 @@
 <div class="chart" id="rainfall"></div>
 
 <progress max="100" value="0" id="battery"></progress>
-OK
+
+<body>
+<!--The div element for the map -->
+<div id="map"></div>
+<script>
+    // Initialize and add the map
+    function initMap() {
+        // The location of Uluru
+        var uluru = {lat: -25.344, lng: 131.036};
+        // The map, centered at Uluru
+        var map = new google.maps.Map(
+                document.getElementById('map'), {zoom: 4, center: uluru});
+        // The marker, positioned at Uluru
+        var marker = new google.maps.Marker({
+            position: uluru,
+            map: map,
+            animation: google.maps.Animation.BOUNCE
+        });
+    }
+</script>
+<!--Load the API from the specified URL
+* The async attribute allows the browser to render the page while the API loads
+* The key parameter will contain your own API key (which is not needed for this tutorial)
+* The callback parameter executes the initMap() function
+-->
+<script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC4RDOsFOhjoXLk34gV3klCbBq_19RKzbI&callback=initMap">
+</script>
+
 
 <script src="plotly-latest.min.js"></script>
 <script src="draw.js"></script>

@@ -43,13 +43,28 @@ function drawChartEvent(type) {
             // console.log(xhr.responseText);
 
             var weatherInfo = JSON.parse(xhr.responseText);
-            drawTemperatureOutsideChart(weatherInfo);
-            drawHumidityChart(weatherInfo);
-            drawTemperatureInsideChart(weatherInfo);
-            drawPressureChart(weatherInfo);
-            drawWindSpeedChart(weatherInfo);
-            drawWindDirectionChart(weatherInfo);
-            drawRainfallChart(weatherInfo);
+
+            if (type == "location") {
+                Plotly.purge(document.getElementById('temperature-outside'));
+                Plotly.purge(document.getElementById('humidity'));
+                Plotly.purge(document.getElementById('temperature-inside'));
+                Plotly.purge(document.getElementById('pressure'));
+                Plotly.purge(document.getElementById('wind-speed'));
+                Plotly.purge(document.getElementById('wind-direction'));
+                Plotly.purge(document.getElementById('rainfall'));
+
+                document.getElementById("map").style.display = "block";
+            } else {
+                document.getElementById("map").style.display = "none";
+
+                drawTemperatureOutsideChart(weatherInfo);
+                drawHumidityChart(weatherInfo);
+                drawTemperatureInsideChart(weatherInfo);
+                drawPressureChart(weatherInfo);
+                drawWindSpeedChart(weatherInfo);
+                drawWindDirectionChart(weatherInfo);
+                drawRainfallChart(weatherInfo);
+            }
 
             document.getElementById("battery").value = weatherInfo.pop().Battery;
         }
