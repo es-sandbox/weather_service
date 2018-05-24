@@ -11,6 +11,7 @@ function drawChartEvent(type) {
     document.getElementById("dailyRecords").className = "";
     document.getElementById("hourlyRecords").className = "";
     document.getElementById("lastMinuteRecords").className = "";
+    document.getElementById("location").className = "";
 
     if (type == "allRecords") {
         document.getElementById("allRecords").className = "current"
@@ -26,6 +27,10 @@ function drawChartEvent(type) {
     if (type == 'lastMinuteRecords') {
         endpoint = 'http://192.168.0.105:9000/data/last_minute';
         document.getElementById("lastMinuteRecords").className = "current"
+    }
+
+    if (type == 'location') {
+        document.getElementById("location").className = "current"
     }
 
     xhr.open('GET', endpoint, true);
