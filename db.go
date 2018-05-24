@@ -1,13 +1,13 @@
 package main
 
 import (
-	"errors"
-	"time"
-	"fmt"
 	"bytes"
-	"encoding/gob"
-	"github.com/boltdb/bolt"
 	"encoding/binary"
+	"encoding/gob"
+	"errors"
+	"fmt"
+	"github.com/boltdb/bolt"
+	"time"
 )
 
 var (
@@ -35,6 +35,13 @@ type weatherInfo struct {
 	Thunder       int
 	Light         float64
 	Charging      int
+
+	Latitude  float64
+	Longitude float64
+
+	Fire bool
+	Snow bool
+	SOS  bool
 }
 
 func (w *weatherInfo) GetTime() time.Time {
@@ -109,7 +116,6 @@ func getAllRecords() ([]*weatherInfo, error) {
 	return weatherInfoSlice, nil
 }
 
-
 func getAllRecordsWithErrorSuppressing() []*weatherInfo {
 	allRecords, err := getAllRecords()
 	if err != nil {
@@ -137,7 +143,7 @@ func getLastRecord() (*weatherInfo, error) {
 		return nil, errors.New("element does not exist")
 	}
 
-	return allRecords[len(allRecords) - 1], nil
+	return allRecords[len(allRecords)-1], nil
 }
 
 func getLastHourRecords() []*weatherInfo {
