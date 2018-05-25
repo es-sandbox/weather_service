@@ -230,14 +230,30 @@ func launchCloudTest() {
 	fmt.Println(weatherInfo)
 }
 
+func getWeatherInfoFromCloud() (*weatherInfo, error) {
+	return newWeatherInfoFromCloud()
+}
+
 func main() {
 	listenAddr := flag.String("listen", "0.0.0.0:9000", "address of http server, format: host:port")
 	daPath := flag.String("dbpath", "data.db", "absolute path to database, example: /tmp/my.db")
 	cloudTest := flag.Bool("cloud", false, "launch cloud testing and exit")
+	cloudInfo := flag.Bool("cloud_info", false, "show current cloud info")
 	flag.Parse()
 
 	if *cloudTest {
 		launchCloudTest()
+		return
+	}
+
+	if *cloudInfo {
+		weatherInfo, err := getWeatherInfoFromCloud()
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+
+		fmt.Println(weatherInfo)
 		return
 	}
 

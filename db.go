@@ -65,9 +65,13 @@ func (w *weatherInfo) String() string {
 	Thunder       %v
 	Light         %v
 	Charging      %v
+
+	Fire %v
+	Snow %v
+	SOS  %v
 	`
 	return fmt.Sprintf(tmpl, w.ID, w.TimeStamp, w.TempOUT, w.Humidity, w.TempIN, w.Pressure, w.WindSpeed, w.WindDirection,
-		w.Rainfall, w.Battery, w.Thunder, w.Light, w.Charging)
+		w.Rainfall, w.Battery, w.Thunder, w.Light, w.Charging, w.Fire, w.Snow, w.SOS)
 }
 
 func (w *weatherInfo) Serialize() ([]byte, error) {
