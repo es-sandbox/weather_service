@@ -39,9 +39,9 @@ type weatherInfo struct {
 	Latitude  float64
 	Longitude float64
 
-	Fire bool
-	Snow bool
-	SOS  bool
+	Fire int
+	Snow int
+	SOS  int
 }
 
 func (w *weatherInfo) GetTime() time.Time {

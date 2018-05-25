@@ -53,12 +53,16 @@ func dataHandler(resp http.ResponseWriter, req *http.Request) {
 			id, _ := b.NextSequence()
 			weatherInfo.ID = id
 
+			weatherInfo.TimeStamp = time.Now().UnixNano()
+
 			// TODO(evg): check if TimeStamp exists
+			/*
 			if weatherInfo.TimeStamp == 0 {
 				weatherInfo.TimeStamp = time.Now().UnixNano()
 			} else {
 				weatherInfo.TimeStamp *= 1e9
 			}
+			*/
 
 			data, err := weatherInfo.Serialize()
 			if err != nil {
